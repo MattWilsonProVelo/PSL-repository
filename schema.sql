@@ -10,20 +10,32 @@ create extension if not exists "pgcrypto"; -- for gen_random_uuid()
 
 -- ── §2: org chart & finance access ─────────────────────────────────────────
 
+-- `boards` is the Control Room nav's access list — which of the six
+-- boards (sponsorship, ops, media_marketing, wip, meets, finances) a
+-- person's dashboard shows tiles for. It is deliberately a second,
+-- separate list from `finance_access`: finance_access is the hard
+-- enforcement boundary every /dashboard/finances query and page checks
+-- server-side, while `boards` only controls what appears in navigation.
+-- Never rely on `boards` alone to gate the Finances data — see
+-- src/lib/access.ts.
 create table staff (
   id             uuid primary key default gen_random_uuid(),
   name           text not null,
   email          text unique not null,     -- must be @provelosuperleague.com
   role           text not null,
-  finance_access boolean not null default false
+  finance_access boolean not null default false,
+  boards         text[] not null default '{}'
 );
 
-insert into staff (name, email, role, finance_access) values
-  ('Matt',  'matt@provelosuperleague.com',  'Head of sport, operations & PCG vision/direction', true),
-  ('Aaron', 'aaron@provelosuperleague.com', 'Founder, head of commercial, sales, marketing & PCG vision/direction', true);
-  -- Lucy and Tim: add once Tim's address is independently confirmed (§12 open questions).
-  -- ('Lucy', 'lucy@provelosuperleague.com', 'Digital media and marketing', false),
-  -- ('Tim',  'tim@provelosuperleague.com',  'Design and creative', false);
+insert into staff (name, email, role, finance_access, boards) values
+  ('Matt',  'matt@provelosuperleague.com',  'Head of sport, operations & PCG vision/direction', true,
+   '{sponsorship,ops,media_marketing,wip,meets,finances}'),
+  ('Aaron', 'aaron@provelosuperleague.com', 'Founder, head of commercial, sales, marketing & PCG vision/direction', true,
+   '{sponsorship,ops,media_marketing,wip,meets,finances}'),
+  ('Lucy',  'lucy@provelosuperleague.com',  'Sponsorship, digital media, marketing & WIP', false,
+   '{sponsorship,media_marketing,wip,meets}'),
+  ('Tim',   'tim@provelosuperleague.com',   'Media, marketing & design', false,
+   '{media_marketing,meets}');
 
 -- ── §4: sponsorship / deliverables spine ───────────────────────────────────
 

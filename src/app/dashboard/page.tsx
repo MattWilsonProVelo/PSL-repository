@@ -1,24 +1,31 @@
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { staffAccessForEmail, BOARDS, canAccessBoard } from "@/lib/access";
 
-// This page is the whole point of §11: it renders per the *logged-in*
-// person, not per the link. Every data query that eventually replaces the
-// placeholder below MUST filter by this session's email (resolved to a
-// staff_id server-side) — never pass staff_id in from the client, and never
-// fetch "everyone's rows then hide some in the UI." Hiding in the UI is not
-// the security boundary; the WHERE clause is.
+// The Control Room hub — lands here right after login, shows one tile per
+// board this specific person has access to. Which tiles appear is driven
+// entirely by staffAccessForEmail (server-resolved from the session email,
+// never from anything client-supplied); the per-board pages under
+// /dashboard/[board] re-check access themselves too, so a hidden tile is
+// not the only thing standing between someone and a board they shouldn't see.
 export default async function DashboardPage() {
   const session = await auth();
   if (!session?.user?.email) {
     redirect("/login");
   }
 
+  const access = await staffAccessForEmail(session.user.email);
+  const visibleBoards = BOARDS.filter((b) => canAccessBoard(access, b.key));
+
   return (
     <div className="flex-1 p-8 max-w-3xl mx-auto w-full">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-xl font-semibold">Welcome, {session.user.name}</h1>
-          <p className="text-sm opacity-60">{session.user.email}</p>
+          <h1 className="text-xl font-semibold">PSL Control Room</h1>
+          <p className="text-sm opacity-60">
+            {session.user.name} · {session.user.email}
+          </p>
         </div>
         <form
           action={async () => {
@@ -35,16 +42,26 @@ export default async function DashboardPage() {
         </form>
       </div>
 
-      <div className="border border-black/10 dark:border-white/15 rounded-xl p-6">
-        <p className="text-sm opacity-70">
-          This is where your personal inbox / Drive / calendar summary will
-          render — scoped server-side to <strong>{session.user.email}</strong>{" "}
-          only, via a Postgres query on <code>staff_id</code> (see{" "}
-          <code>schema.sql</code>). Not wired up yet — this scaffold proves
-          the login and per-viewer identity work; the data queries are the
-          next piece to build.
-        </p>
-      </div>
+      {!access ? (
+        <div className="border border-black/10 dark:border-white/15 rounded-xl p-6">
+          <p className="text-sm opacity-70">
+            Your account isn&apos;t set up as PSL staff yet — ask Matt or
+            Aaron to add you to the staff list.
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4">
+          {visibleBoards.map((b) => (
+            <Link
+              key={b.key}
+              href={`/dashboard/${b.slug}`}
+              className="border border-black/10 dark:border-white/15 rounded-xl p-6 hover:bg-black/5 dark:hover:bg-white/10 transition"
+            >
+              <h2 className="font-medium">{b.label}</h2>
+            </Link>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
