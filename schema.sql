@@ -33,9 +33,9 @@ insert into staff (name, email, role, finance_access, boards) values
   ('Aaron', 'aaron@provelosuperleague.com', 'Founder, head of commercial, sales, marketing & PCG vision/direction', true,
    '{sponsorship,ops,media_marketing,wip,meets,finances}'),
   ('Lucy',  'lucy@provelosuperleague.com',  'Sponsorship, digital media, marketing & WIP', false,
-   '{sponsorship,media_marketing,wip,meets}'),
+   '{sponsorship,ops,media_marketing,wip,meets}'),
   ('Tim',   'tim@provelosuperleague.com',   'Media, marketing & design', false,
-   '{media_marketing,meets}');
+   '{sponsorship,ops,media_marketing,wip,meets}');
 
 -- ── §4: sponsorship / deliverables spine ───────────────────────────────────
 
