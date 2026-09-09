@@ -1,6 +1,7 @@
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { staffAccessForEmail, BOARDS, canAccessBoard } from "@/lib/access";
 
 // The Control Room hub — lands here right after login, shows one tile per
@@ -21,11 +22,27 @@ export default async function DashboardPage() {
   return (
     <div className="flex-1 p-8 max-w-3xl mx-auto w-full">
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-xl font-semibold">PSL Control Room</h1>
-          <p className="text-sm opacity-60">
-            {session.user.name} · {session.user.email}
-          </p>
+        <div className="flex items-center gap-4">
+          <Image
+            src="/psl-logo-black.svg"
+            alt="ProVelo Super League"
+            width={56}
+            height={31}
+            className="dark:hidden"
+          />
+          <Image
+            src="/psl-logo-white.svg"
+            alt="ProVelo Super League"
+            width={56}
+            height={31}
+            className="hidden dark:block"
+          />
+          <div>
+            <h1 className="text-xl font-semibold">PSL Control Room</h1>
+            <p className="text-sm opacity-60">
+              {session.user.name} · {session.user.email}
+            </p>
+          </div>
         </div>
         <form
           action={async () => {
@@ -55,9 +72,11 @@ export default async function DashboardPage() {
             <Link
               key={b.key}
               href={`/dashboard/${b.slug}`}
-              className="border border-black/10 dark:border-white/15 rounded-xl p-6 hover:bg-black/5 dark:hover:bg-white/10 transition"
+              className="group border border-black/10 dark:border-white/15 rounded-xl p-6 hover:border-[#00FF8A] hover:shadow-[0_0_0_1px_#00FF8A] transition"
             >
-              <h2 className="font-medium">{b.label}</h2>
+              <h2 className="font-medium group-hover:text-[#00b366] dark:group-hover:text-[#00FF8A]">
+                {b.label}
+              </h2>
             </Link>
           ))}
         </div>

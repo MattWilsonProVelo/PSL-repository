@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { staffAccessForEmail, BOARDS, canAccessBoard } from "@/lib/access";
 
 export default async function BoardPage({
@@ -28,8 +29,25 @@ export default async function BoardPage({
 
   return (
     <div className="flex-1 p-8 max-w-3xl mx-auto w-full">
-      <div className="mb-6">
-        <Link href="/dashboard" className="text-sm opacity-60 hover:opacity-100">
+      <div className="flex items-center gap-3 mb-6">
+        <Image
+          src="/psl-logo-black.svg"
+          alt="ProVelo Super League"
+          width={32}
+          height={18}
+          className="dark:hidden"
+        />
+        <Image
+          src="/psl-logo-white.svg"
+          alt="ProVelo Super League"
+          width={32}
+          height={18}
+          className="hidden dark:block"
+        />
+        <Link
+          href="/dashboard"
+          className="text-sm opacity-60 hover:opacity-100 hover:text-[#00b366] dark:hover:text-[#00FF8A]"
+        >
           ← Control Room
         </Link>
       </div>
